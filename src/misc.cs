@@ -552,6 +552,7 @@ function Player::unZipSchedule(%this, %col, %times) {
 		%col.isWrapped = false;
 		%player = %col.originalClient.player;
 		%col.originalClient.player = %col;
+		%col.unHideNode("ALL");
 		%col.originalClient.applyBodyParts();
 		%col.originalClient.applyBodyColors();
 		%col.originalClient.player = %player;

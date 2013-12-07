@@ -99,3 +99,8 @@ function serverCmdSuccumb(%this)
 		messageClient(%this, '', "<color:AAAAAA>You have given up life and succumbed to death.");
 	}
 }
+
+function serverCmdDie(%this)
+{
+	serverCmdSuccumb(%this); //Redirect
+}

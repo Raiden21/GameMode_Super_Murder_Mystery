@@ -192,12 +192,13 @@ function PaintImage::onFire(%this, %obj, %slot) {
 	if (isObject(%decal)) {
 		%decal.setNodeColor("ALL", "0.8 0.2 0.2 1");
 
-		if(vectorDot("0 0 -1", %decal.normal) >= 0.5 && !isEventPending(%decal.ceilingBloodSchedule)) {
-			if(getRandom(0, 3) == 3) 
-			{
-				%decal.ceilingBloodSchedule = schedule(getRandom(16, 500), 0, ceilingBloodLoop, %decal, getWords(%ray, 1, 3));
-			}
-		}
+		// if(vectorDot("0 0 -1", %decal.normal) >= 0.5 && !isEventPending(%decal.ceilingBloodSchedule)) {
+		// 	if(getRandom(0, 3) == 3) 
+		// 	{
+		// 		%decal.ceilingBloodSchedule = schedule(getRandom(16, 500), 0, ceilingBloodLoop, %decal, getWords(%ray, 1, 3));
+		// 	}
+		// }
+		// 2silly
 
 		%obj.toolMag[%obj.currTool]--;
 		hl2DisplayAmmo(%this, %obj, %slot);

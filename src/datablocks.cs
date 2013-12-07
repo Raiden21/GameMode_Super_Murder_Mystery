@@ -2,7 +2,7 @@ JumpSound.fileName = $SMM::Path @ "res/sounds/jump.wav";
 
 datablock AudioDescription( AudioSilent3d : AudioClose3d )
 {
-	volume = 0.6;
+	volume = 0.8;
 	maxDistance = 15;
 };
 
@@ -249,6 +249,11 @@ datablock AudioProfile(BloodDripSound3) {
 	description = AudioSilent3D;
 	preload = true;
 };
+datablock AudioProfile(BloodDripSound4) {
+	fileName = $SMM::Path @ "res/sounds/physics/blood_drip4.wav";
+	description = AudioSilent3D;
+	preload = true;
+};
 
 datablock audioProfile(bodyBagZipSound) {
 	fileName = $SMM::Path @ "res/sounds/zip.wav";
@@ -263,7 +268,7 @@ datablock audioProfile(bodyBagUnzipSound) {
 
 
 datablock audioDescription(audioMusic2d : audioClose3D) {
-	volume = 1.5;
+	volume = 1.25;
 };
 datablock audioProfile(smmMafiaWinMusic) {
 	fileName = $SMM::Path @ "res/sounds/music/mafiawins.ogg";

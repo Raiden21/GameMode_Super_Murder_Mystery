@@ -16,7 +16,7 @@ function BloodDripProjectile::onCollision(%this, %obj, %col, %pos, %fade, %norma
 
 function bloodDripProjectile::onExplode(%this, %obj, %pos)
 {
-	ServerPlay3D(bloodDripSound @ getRandom(2, 3), %pos);
+	ServerPlay3D(bloodDripSound @ getRandom(1, 4), %pos);
 }
 
 function createBloodDripProjectile(%position, %size) {
