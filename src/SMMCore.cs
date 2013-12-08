@@ -133,11 +133,11 @@ function SMMCore::end(%this, %message, %music) {
 	%this.miniGame.resetSchedule = %this.miniGame.schedule(10000, reset, 0);
 }
 
-function SMMCore::placeSuitcases(%this) {
+function SMMCore::placeRandomItems(%this) {
 	%name = "_randomItemSpawn";
 
 	%nameCount = BrickGroup_888888.NTObjectCount[%name];
-	%spawnCount = getRandom(mCeil(%nameCount * 0.2), mCeil(%nameCount * 0.5));
+	//%spawnCount = getRandom(mCeil(%nameCount * 0.2), mCeil(%nameCount * 0.5));
 	%spawnCount = %nameCount;
 
 	for (%i = 0; %i < %nameCount; %i++) {
@@ -152,8 +152,9 @@ function SMMCore::placeSuitcases(%this) {
 		%bricks = trim(strReplace(setWord(%bricks, %index, ""), "  ", " "));
 
 		if (isObject(%brick)) {
-			if (getRandom() > 0.33) {
-				%brick.setItem(getRandom() < 0.33 ? LockedSuitcaseItem : SuitcaseItem);
+			//if (getRandom() >= 0.33) {
+			if (1) {
+				%brick.setItem(getRandom() < 0.25 ? LockedSuitcaseItem : SuitcaseItem);
 			}
 			else {
 				%choices = "suitcaseKeyItem papersItem paintItem AutomaticPistolItem";
