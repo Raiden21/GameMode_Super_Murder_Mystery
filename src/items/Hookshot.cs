@@ -100,7 +100,7 @@ datablock ShapeBaseImageData(HookshotHoldingImage) {
 	stateTransitionOnTriggerUp[1] = "Used";
 
 	stateName[2] = "Used";
-	stateAllowImageChange[2] = 1;
+	stateAllowImageChange[2] = 0;
 };
 
 function HookshotImage::onMount(%this, %obj, %slot) {
@@ -122,16 +122,40 @@ function HookshotImage::onFire(%this, %obj, %slot) {
 }
 
 function HookshotHoldingImage::onUse(%this, %obj, %slot) {
-	// foo
+	%eyePoint = %obj.getEyePoint();
+	%eyeVector = %obj.getEyeVector();
+
+	%ray = containerRayCast(%eyePoint,
+		vectorAdd(%eyePoint, vectorScale(%eyeVector, 6)),
+		$TypeMasks::FxBrickObjectType,
+		%obj
+	);
+
+	%col = getWord(%ray, 0);
+
+	if(isObject(%col)) {
+		%obj.cancel(createRopeLoop);
+		%obj.unMountImage(0);
+		%obj.tool[%slot] = "";
+		%obj.rope = createRope(getWords(%ray, 1, 3), %obj.ropePointB, 1);
+		%obj.ropePointB = "";
+	}
 }
 
 function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel) {
 	Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel);
 
-	if (!isObject(%obj.sourceObject)) {
+	if (!isObject(%src = %obj.sourceObject)) {
 		return;
 	}
 
+	if(isObject(%src.rope)) {
+		deleteRope(%src.rope);
+	}
+
+	%src.createRopeLoop(%pos);
+	%src.ropePointB = %pos;
+	%src.mountImage(HookshotHoldingImage, 0);
 	//talk("Player" SPC %obj.sourceObject SPC "hit a hookshot at" SPC %pos SPC "with velocity" SPC %vel);
 }
 
@@ -215,8 +239,8 @@ function findRopePoint(%pos, %vec) {
 	return getWords(%ray, 1, 3);
 }
 
-function player::test(%this,%pos) {
-	cancel(%this.test);
+function player::createRopeLoop(%this,%pos) {
+	cancel(%this.createRopeLoop);
 
 	%vec1 = vectorNormalize(vectorSub(%this.position, %pos));
 	%vec2 = vectorNormalize(vectorSub(%pos, %this.position));
@@ -233,11 +257,11 @@ function player::test(%this,%pos) {
 		}
 
 		if (!isObject(%this.rope)) {
-			%this.rope = createRope(%a, %b);
+			%this.rope = createRope(%a, %b, 0);
 		}
 	}
 
-	%this.test = %this.schedule(100, test, %pos);
+	%this.createRopeLoop = %this.schedule(100, createRopeLoop, %pos);
 }
 
 function vectorToAxis(%vector) {
