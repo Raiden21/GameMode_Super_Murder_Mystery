@@ -105,7 +105,7 @@ function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %v
 		return;
 	}
 
-	talk("Player" SPC %obj.sourceObject SPC "hit a hookshot at" SPC %pos SPC "with velocity" SPC %vel);
+	//talk("Player" SPC %obj.sourceObject SPC "hit a hookshot at" SPC %pos SPC "with velocity" SPC %vel);
 }
 
 function createRope(%a, %b, %collision) {
