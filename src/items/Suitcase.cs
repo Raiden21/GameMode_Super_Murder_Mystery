@@ -184,13 +184,14 @@ function LockedSuitcaseItem::onPickup(%this, %obj, %player) {
 }
 
 function pickSuitcaseTool(%isLocked) {
-	%choices = "carbineSMGItem suitcaseKeyItem suitcaseKeyItem suitcaseKeyItem papersItem paintItem LighterItem flashlightItem";
-	%choices = %choices SPC "AutomaticPistolItem revolverItem bodybagItem taserItem gamePistolItem singleShotgunItem";
-
 	if (%isLocked) {
-		%choices = "disguiseItem assaultRifleItem doubleShotgunItem medicineItem gamePistolItem sniperRifleItem fieldRifleItem";
-		%choices = %choices SPC "combatRifleItem stealthPistolItem goldenGunItem LighterItem AmmoSupplyItem RecoveryDeviceItem";
-		%choices = %choices SPC "singleShotgunItem";
+		%choices = "assaultRifleItem doubleShotgunItem sniperRifleItem fieldRifleItem combatRifleItem stealthPistolItem goldenGunItem";
+		%choices = %choices TAB "disguiseItem medicineItem ammoSupplyItem recoveryDeviceItem suitcaseKeyItem cloakItem bodybagItem";
+		%choices = %choices TAB "falseCorpseItem flashlightItem hookshotItem paintItem timeBombItem";
+	}
+	else {
+		%choices = "carbineSMGItem gamePistolItem automaticPistolItem singleShotgunItem";
+		%choices = %choices TAB "suitcaseKeyItem papersItem lighterItem bodybagItem flashlightItem taserItem";
 	}
 
 	%choice = getWord(%choices, getRandom(0, getWordCount(%choices) - 1));

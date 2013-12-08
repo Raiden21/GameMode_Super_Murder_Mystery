@@ -110,7 +110,7 @@ function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %v
 
 function createRope(%a, %b, %collision) {
 	%vec1 = vectorNormalize(vectorSub(%a, %b));
-	%vec2 = vectorNormalize(vectorSub(%a, %b));
+	%vec2 = vectorNormalize(vectorSub(%b, %a));
 
 	%xyz = vectorNormalize(vectorCross("1 0 0", %vec1));
 	%pow = mRadToDeg(mACos(vectorDot("1 0 0", %vec1))) * -1;
@@ -152,6 +152,13 @@ function createHook(%position, %vector) {
 	return %obj;
 }
 
+function deleteRope(%rope) {
+	%rope.hook1.delete();
+	%rope.hook2.delete();
+
+	%rope.delete();
+}
+
 function findRopePoint(%pos, %vec) {
 	%vec = vectorNormalize(%vec);
 
@@ -179,13 +186,6 @@ function findRopePoint(%pos, %vec) {
 	}
 
 	return getWords(%ray, 1, 3);
-}
-
-function deleteRope(%rope) {
-	%rope.hook1.delete();
-	%rope.hook2.delete();
-
-	%rope.delete();
 }
 
 function player::test(%this,%pos) {
