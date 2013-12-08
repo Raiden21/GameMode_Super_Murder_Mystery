@@ -147,7 +147,7 @@ function ceilingBloodLoop(%this, %pos, %paint) {
 	}
 
 	createBloodDripProjectile(%pos, "", %paint);
-	%this.ceilingBloodSchedule = schedule(%this.driptime, 0, ceilingBloodLoop, %this, %pos);
+	%this.ceilingBloodSchedule = schedule(%this.driptime, 0, ceilingBloodLoop, %this, %pos, %paint);
 }
 
 function createBloodExplosion(%position, %velocity, %scale) {
