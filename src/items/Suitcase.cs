@@ -190,8 +190,8 @@ function pickSuitcaseTool(%isLocked) {
 		%choices = %choices TAB "falseCorpseItem flashlightItem hookshotItem paintItem timeBombItem";
 	}
 	else {
-		%choices = "carbineSMGItem gamePistolItem automaticPistolItem singleShotgunItem";
-		%choices = %choices TAB "suitcaseKeyItem papersItem lighterItem bodybagItem flashlightItem taserItem";
+		%choices = "carbineSMGItem gamePistolItem automaticPistolItem singleShotgunItem fieldRifleItem";
+		%choices = %choices TAB "suitcaseKeyItem papersItem lighterItem bodybagItem flashlightItem taserItem paintItem hookshotItem";
 	}
 
 	%choice = getWord(%choices, getRandom(0, getWordCount(%choices) - 1));
