@@ -1,5 +1,5 @@
 datablock staticShapeData(RopeShapeData) {
-	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/rope.dts";
+	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/1tu_cylinder_collision.dts";
 };
 
 datablock staticShapeData(HookShapeData) {
@@ -105,7 +105,7 @@ function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %v
 }
 
 function createRope(%a, %b) {
-	%size = 0.1;
+	%size = 0.5;
 
 	%offset = vectorSub(%a, %b);
 	%normal = vectorNormalize(%offset);
@@ -115,17 +115,20 @@ function createRope(%a, %b) {
 
 	%obj = new StaticShape() {
 		datablock = RopeShapeData;
-		scale = vectorScale(vectorLen(%offset) SPC %size SPC %size, 1);
+		//scale = 0.5 SPC vectorLen(%offset) SPC 0.5;
+		scale = 0.1 SPC 0.1 SPC vectorLen(%offset);
 
-		position = vectorScale(vectorAdd(%a, %b), 0.5);
-		rotation = %xyz SPC %pow;
+		//position = vectorScale(vectorAdd(%a, %b), 0.5);
+		//rotation = %xyz SPC %pow;
 
 		a = %a;
 		b = %b;
 	};
 
 	MissionCleanup.add(%obj);
-	%obj.setNodeColor("ALL", "0 0 0 1");
+
+	%obj.setTransform(vectorScale(vectorAdd(%a, %b), 0.5) SPC vectorToAxis(%normal));
+	%obj.setNodeColor("ALL", "0.454902 0.313726 0.109804 1.000000");
 
 	return %obj;
 }
@@ -176,6 +179,25 @@ function findRopePoint(%pos, %vec) {
 	return getWords(%ray, 1, 3);
 }
 
+function createHookshotRope(%a, %b) {
+	%i = vectorNormalize(vectorSub(%a, %b));
+	%j = vectorNormalize(vectorSub(%b, %a));
+
+	%rope = createRope(%a, %b);
+
+	%rope.hook1 = createHook(%a, %i);
+	%rope.hook2 = createHook(%b, %j);
+
+	return %rope;
+}
+
+function deleteHookshotRope(%rope) {
+	%rope.hook1.delete();
+	%rope.hook2.delete();
+
+	%rope.delete();
+}
+
 function player::test(%this,%pos) {
 	cancel(%this.test);
 
@@ -190,39 +212,15 @@ function player::test(%this,%pos) {
 		%b = vectorAdd(%b, "0 0 0.05");
 
 		if (isObject(%this.rope) && (%this.rope.a !$= %a || %this.rope.b !$= %b)) {
-			%this.rope.delete();
+			deleteHookshotRope(%this.rope);
 		}
 
 		if (!isObject(%this.rope)) {
-			%this.rope = createRope(%a, %b);
-		}
-
-		if (isObject(%this.hook1)) {
-			if (%this.hook1._position !$= %a || %this.hook1._vector !$= %vec2) {
-				%this.hook1._position = %a;
-				%this.hook1._vector = %vec2;
-
-				%this.hook1.setTransform(%a SPC vectorToAxis(%vec2));
-			}
-		}
-		else {
-			%this.hook1 = createRope(%a, %vec2);
-		}
-
-		if (isObject(%this.hook2)) {
-			if (%this.hook2._position !$= %b || %this.hook2._vector !$= %vec1) {
-				%this.hook2._position = %b;
-				%this.hook2._vector = %vec1;
-
-				%this.hook2.setTransform(%b SPC vectorToAxis(%vec1));
-			}
-		}
-		else {
-			%this.hook2 = createRope(%b, %vec1);
+			%this.rope = createHookshotRope(%a, %b);
 		}
 	}
 
-	%this.test=%this.schedule(50,test,%pos);
+	%this.test=%this.schedule(100,test,%pos);
 }
 
 function markPoint(%a,%t) {
