@@ -16,7 +16,7 @@ function SMMCore::onAdd(%this) {
 	%this.kills = 0;
 	%this.start = $Sim::Time;
 
-	%this.placeSuitcases();
+	%this.placeRandomItems();
 	%this.resetSuddenDeath();
 
 	%count = mCeil(%this.miniGame.numMembers / 5);

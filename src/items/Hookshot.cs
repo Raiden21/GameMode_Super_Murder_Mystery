@@ -17,6 +17,9 @@ datablock ItemData(HookshotItem) {
 	uiName = "Hookshot";
 	canDrop = true;
 
+	doColorShift = 1;
+	colorShiftColor = "0.454902 0.313726 0.109804 1.000000";
+
 	mass = 1;
 	density = 0.2;
 	elasticity = 0.2;
@@ -25,7 +28,7 @@ datablock ItemData(HookshotItem) {
 };
 
 datablock ProjectileData(HookProjectile) {
-	projectileShapeName = $SMM::Path @ "res/shapes/hook.dts";
+	projectileShapeName = $SMM::Path @ "res/shapes/hook_proj.dts";
 
 	directDamage = 0;
 	radiusDamage = 0;
@@ -53,6 +56,9 @@ datablock ShapeBaseImageData(HookshotImage) {
 	projectile = HookProjectile;
 	projectileType = Projectile;
 
+	doColorShift = HookshotItem.doColorShift;
+	colorShiftColor = HookshotItem.colorShiftColor;
+
 	stateName[0] = "Ready";
 	stateAllowImageChange[0] = 1;
 	stateTransitionOnTriggerDown[0] = "Fire";
@@ -65,6 +71,16 @@ datablock ShapeBaseImageData(HookshotImage) {
 
 	stateName[2] = "Fired";
 	stateAllowImageChange[2] = 1;
+};
+
+datablock ShapeBaseImageData(HookshotLeftImage) {
+	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
+	mountPoint = 1;
+
+	item = HookshotItem;
+
+	doColorShift = HookshotItem.doColorShift;
+	colorShiftColor = HookshotItem.colorShiftColor;
 };
 
 datablock ShapeBaseImageData(HookshotHoldingImage) {
@@ -85,6 +101,17 @@ datablock ShapeBaseImageData(HookshotHoldingImage) {
 	stateName[2] = "Used";
 	stateAllowImageChange[2] = 1;
 };
+
+function HookshotImage::onMount(%this, %obj, %slot) {
+	%obj.mountImage(HookshotLeftImage, %slot + 1);
+}
+
+function HookshotImage::onUnMount(%this, %obj, %slot) {
+	echo(%obj.getMountedIamge(%slot + 1).getName());
+	if (%obj.getMountedIamge(%slot + 1) == nameToID("HookshotLeftImage")) {
+		%obj.unmountImage(%slot + 1);
+	}
+}
 
 function HookshotImage::onFire(%this, %obj, %slot) {
 	if (%obj.tool[%obj.currTool] != %this.item.getID()) {
@@ -130,7 +157,7 @@ function createRope(%a, %b, %collision) {
 	};
 
 	MissionCleanup.add(%obj);
-	%obj.setNodeColor("ALL", "0.454902 0.313726 0.109804 1.000000");
+	%obj.setNodeColor("ALL", HookshotItem.colorShiftColor);
 
 	return %obj;
 }
