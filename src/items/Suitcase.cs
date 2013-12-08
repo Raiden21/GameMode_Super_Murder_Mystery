@@ -186,7 +186,7 @@ function LockedSuitcaseItem::onPickup(%this, %obj, %player) {
 function pickSuitcaseTool(%isLocked) {
 	if (%isLocked) {
 		%choices = "assaultRifleItem doubleShotgunItem sniperRifleItem fieldRifleItem combatRifleItem stealthPistolItem goldenGunItem";
-		%choices = %choices TAB "disguiseItem medicineItem ammoSupplyItem recoveryDeviceItem suitcaseKeyItem cloakItem bodybagItem";
+		%choices = %choices TAB "disguiseItem medicineItem ammoSupplyItem recoveryDeviceItem cloakItem bodybagItem";
 		%choices = %choices TAB "falseCorpseItem flashlightItem hookshotItem paintItem timeBombItem";
 	}
 	else {
