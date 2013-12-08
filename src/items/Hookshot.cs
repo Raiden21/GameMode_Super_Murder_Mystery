@@ -1,4 +1,8 @@
 datablock staticShapeData(RopeShapeData) {
+	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/1tu_cylinder.dts";
+};
+
+datablock staticShapeData(RopeCollisionShapeData) {
 	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/1tu_cylinder_collision.dts";
 };
 
@@ -104,30 +108,28 @@ function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %v
 	talk("Player" SPC %obj.sourceObject SPC "hit a hookshot at" SPC %pos SPC "with velocity" SPC %vel);
 }
 
-function createRope(%a, %b) {
-	%size = 0.5;
+function createRope(%a, %b, %collision) {
+	%vec1 = vectorNormalize(vectorSub(%a, %b));
+	%vec2 = vectorNormalize(vectorSub(%a, %b));
 
-	%offset = vectorSub(%a, %b);
-	%normal = vectorNormalize(%offset);
-
-	%xyz = vectorNormalize(vectorCross("1 0 0", %normal));
-	%pow = mRadToDeg(mACos(vectorDot("1 0 0", %normal))) * -1;
+	%xyz = vectorNormalize(vectorCross("1 0 0", %vec1));
+	%pow = mRadToDeg(mACos(vectorDot("1 0 0", %vec1))) * -1;
 
 	%obj = new StaticShape() {
-		datablock = RopeShapeData;
-		//scale = 0.5 SPC vectorLen(%offset) SPC 0.5;
-		scale = vectorLen(%offset) SPC 0.1 SPC 0.1;
+		datablock = %collision ? RopeCollisionShapeData : RopeShapeData;
+		scale = vectorDist(%a, %b) SPC 0.1 SPC 0.1;
 
-		//position = vectorScale(vectorAdd(%a, %b), 0.5);
-		//rotation = %xyz SPC %pow;
+		position = vectorScale(vectorAdd(%a, %b), 0.5);
+		rotation = %xyz SPC %pow;
 
 		a = %a;
 		b = %b;
+
+		hook1 = createHook(%a, %vec1);
+		hook2 = createHook(%b, %vec2);
 	};
 
 	MissionCleanup.add(%obj);
-
-	%obj.setTransform(vectorScale(vectorAdd(%a, %b), 0.5) SPC vectorToAxis(%normal));
 	%obj.setNodeColor("ALL", "0.454902 0.313726 0.109804 1.000000");
 
 	return %obj;
@@ -179,19 +181,7 @@ function findRopePoint(%pos, %vec) {
 	return getWords(%ray, 1, 3);
 }
 
-function createHookshotRope(%a, %b) {
-	%i = vectorNormalize(vectorSub(%a, %b));
-	%j = vectorNormalize(vectorSub(%b, %a));
-
-	%rope = createRope(%a, %b);
-
-	%rope.hook1 = createHook(%a, %i);
-	%rope.hook2 = createHook(%b, %j);
-
-	return %rope;
-}
-
-function deleteHookshotRope(%rope) {
+function deleteRope(%rope) {
 	%rope.hook1.delete();
 	%rope.hook2.delete();
 
@@ -212,22 +202,15 @@ function player::test(%this,%pos) {
 		%b = vectorAdd(%b, "0 0 0.05");
 
 		if (isObject(%this.rope) && (%this.rope.a !$= %a || %this.rope.b !$= %b)) {
-			deleteHookshotRope(%this.rope);
+			deleteRope(%this.rope);
 		}
 
 		if (!isObject(%this.rope)) {
-			%this.rope = createHookshotRope(%a, %b);
+			%this.rope = createRope(%a, %b);
 		}
 	}
 
-	%this.test=%this.schedule(100,test,%pos);
-}
-
-function markPoint(%a,%t) {
-	//%o = new projectile(){datablock=pongprojectile;initialposition=%a;initialvelocity="0 0 0";scale="0.75 0.75 0.75";};
-	%o = new projectile(){datablock=pongprojectile;initialposition=%a;initialvelocity="0 0 0";scale="1.25 1.25 1.25";};
-	missioncleanup.add(%o);
-	%o.schedule(%t $= "" ? 10000 : %t, delete);
+	%this.test = %this.schedule(100, test, %pos);
 }
 
 function vectorToAxis(%vector) {
