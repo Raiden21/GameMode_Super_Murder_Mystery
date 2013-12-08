@@ -51,7 +51,7 @@ datablock ShapeBaseImageData(HookshotImage) {
 	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
 
 	item = HookshotItem;
-	armReady = true;
+	armReady = false;
 
 	projectile = HookProjectile;
 	projectileType = Projectile;
@@ -78,6 +78,7 @@ datablock ShapeBaseImageData(HookshotLeftImage) {
 	mountPoint = 1;
 
 	item = HookshotItem;
+	armReady = false;
 
 	doColorShift = HookshotItem.doColorShift;
 	colorShiftColor = HookshotItem.colorShiftColor;
