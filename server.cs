@@ -8,6 +8,7 @@ $SMM::Path = "Add-Ons/GameMode_Super_Murder_Mystery/";
 exec("./lib/decals.cs");
 exec("./src/datablocks.cs");
 exec("./src/misc.cs");
+exec("./src/replace.cs");
 
 exec("./src/items/Suitcase.cs");
 exec("./src/items/Suitcase_Key.cs");

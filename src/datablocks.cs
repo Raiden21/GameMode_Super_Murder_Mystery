@@ -296,6 +296,17 @@ datablock audioProfile(smmStalemateMusic) {
 	preload = true;
 };
 
+datablock audioDescription(audioDistant3d : audioClose3D) {
+	maxDistance = 100;
+	referenceDistance = 80;
+};
+datablock audioProfile(smmGunDistantSound1) {
+	fileName = $SMM::Path @ "res/sounds/ambient/gunDistant.wav";
+	description = audioDistant3d;
+	preload = true;
+};
+
+
 
 datablock StaticShapeData(BulletHoleDecalData) {
 	shapeFile = $SMM::Path @ "res/shapes/shot_decal.dts";

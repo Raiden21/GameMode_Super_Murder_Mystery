@@ -75,8 +75,8 @@ function Player::cloakUpdateTick(%this, %slot) {
 
 	if (!%shouldCloak && %this.isCloaked) {
 		cancel(%this.startCloakSchedule);
-		
-		%this.client.unHideNode("ALL");
+
+		%this.unHideNode("ALL");
 		%this.client.applyBodyParts();
 		%this.client.applyBodyColors();
 
