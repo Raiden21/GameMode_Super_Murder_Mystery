@@ -271,27 +271,27 @@ datablock audioDescription(audioMusic2d : audioClose3D) {
 	volume = 1.25;
 };
 datablock audioProfile(smmMafiaWinMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/mafiawins.ogg";
+	fileName = $SMM::Path @ "res/sounds/music/mafiawins.wav";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmInnocentsWinMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/innocentswin.ogg";
+	fileName = $SMM::Path @ "res/sounds/music/innocentswin.wav";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmRoundStartMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/roundstart.ogg";
+	fileName = $SMM::Path @ "res/sounds/music/roundstart.wav";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmDeathMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/dead.ogg";
+	fileName = $SMM::Path @ "res/sounds/music/dead.wav";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmStalemateMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/stalemate.ogg";
+	fileName = $SMM::Path @ "res/sounds/music/stalemate.wav";
 	description = audioMusic2d;
 	preload = true;
 };

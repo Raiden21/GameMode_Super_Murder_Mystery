@@ -34,6 +34,8 @@ datablock ItemData(FlashlightItem) {
 	doColorShift = true;
 	colorShiftColor = "0.3 0.3 0.35 1";
 
+	image = FlashLightImage;
+
 	mass = 1;
 	density = 0.2;
 	elasticity = 0.2;
@@ -44,6 +46,8 @@ datablock ItemData(FlashlightItem) {
 datablock ShapeBaseImageData(FlashlightImage) {
 	shapeFile = $SMM::Path @ "res/shapes/flashlight.dts";
 	hasLight = true;
+
+	item = FlashlightItem;
 
 	emap = true;
 	offset = "0 0 0";
