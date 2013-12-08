@@ -25,6 +25,7 @@ exec("./src/items/Papers.cs");
 exec("./src/items/Lighter.cs");
 exec("./src/items/Bodybag.cs");
 exec("./src/items/Flashlight.cs");
+exec("./src/items/Hookshot.cs");
 
 exec("./src/SMMCore.cs");
 exec("./src/package.cs");

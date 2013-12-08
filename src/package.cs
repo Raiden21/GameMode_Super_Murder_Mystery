@@ -887,11 +887,11 @@ package SMMPackage {
 			%message = getSubStr(%message, 1, strLen(%message));
 
 			%action = "yells";
-			%range = 50;
+			%range = 64;
 		}
 		else {
 			%action = "says";
-			%range = 15;
+			%range = 24;
 		}
 
 		if (%message $= "") {
