@@ -3,12 +3,12 @@ datablock staticShapeData(RopeShapeData) {
 };
 
 datablock staticShapeData(HookShapeData) {
-	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/hook2.dts";
+	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/hook.dts";
 };
 
 datablock ItemData(HookshotItem) {
 	image = HookshotImage;
-	shapeFile = $SMM::Path @ "res/shapes/hookImage1.dts";
+	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
 
 	uiName = "Hookshot";
 	canDrop = true;
@@ -21,7 +21,7 @@ datablock ItemData(HookshotItem) {
 };
 
 datablock ProjectileData(HookProjectile) {
-	projectileShapeName = $SMM::Path @ "res/shapes/hook2.dts";
+	projectileShapeName = $SMM::Path @ "res/shapes/hook.dts";
 
 	directDamage = 0;
 	radiusDamage = 0;
@@ -41,7 +41,7 @@ datablock ProjectileData(HookProjectile) {
 
 datablock ShapeBaseImageData(HookshotImage) {
 	className = "WeaponImage";
-	shapeFile = $SMM::Path @ "res/shapes/hookImage1.dts";
+	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
 
 	item = HookshotItem;
 	armReady = true;
@@ -64,7 +64,7 @@ datablock ShapeBaseImageData(HookshotImage) {
 };
 
 datablock ShapeBaseImageData(HookshotHoldingImage) {
-	shapeFile = $SMM::Path @ "res/shapes/hookImage2.dts";
+	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
 
 	item = HookshotItem;
 	armReady = true;
@@ -116,7 +116,7 @@ function createRope(%a, %b) {
 	%obj = new StaticShape() {
 		datablock = RopeShapeData;
 		//scale = 0.5 SPC vectorLen(%offset) SPC 0.5;
-		scale = 0.1 SPC 0.1 SPC vectorLen(%offset);
+		scale = vectorLen(%offset) SPC 0.1 SPC 0.1;
 
 		//position = vectorScale(vectorAdd(%a, %b), 0.5);
 		//rotation = %xyz SPC %pow;
