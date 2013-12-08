@@ -194,7 +194,7 @@ function PaintImage::onFire(%this, %obj, %slot) {
 
 		if (vectorDot("0 0 -1", %decal.normal) >= 0.5 && !isEventPending(%decal.ceilingBloodSchedule)) {
 			if (getRandom() >= 0.9) {
-				%decal.ceilingBloodSchedule = schedule(getRandom(16, 500), 0, ceilingBloodLoop, %decal, getWords(%ray, 1, 3));
+				%decal.ceilingBloodSchedule = schedule(getRandom(16, 500), 0, ceilingBloodLoop, %decal, getWords(%ray, 1, 3), true);
 			}
 		}
 

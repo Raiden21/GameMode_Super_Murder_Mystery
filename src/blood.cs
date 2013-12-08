@@ -4,11 +4,11 @@ $Blood::DripTimeOnDamage = 5;
 $Blood::CheckpointCount = 30;
 
 function BloodDripProjectile::onCollision(%this, %obj, %col, %pos, %fade, %normal) {
-	if (%col.getType() & $TypeMasks::FxBrickObjectType) {
+	if (%col.getType() & $TypeMasks::FxBrickObjectType && !%obj.isPaint) {
 		// spawnDecal(bloodDecal @ getRandom(1, 2), vectorAdd(%pos, vectorScale(%normal, 0.01)), %normal);
 	}
 
-	if (%col.getType() & $TypeMasks::PlayerObjectType) {
+	if (%col.getType() & $TypeMasks::PlayerObjectType && !%obj.isPaint) {
 		%col.startDrippingBlood($Blood::DripTimeOnBlood);
 	}
 	%obj.explode();
@@ -19,12 +19,13 @@ function bloodDripProjectile::onExplode(%this, %obj, %pos)
 	ServerPlay3D(bloodDripSound @ getRandom(1, 4), %pos);
 }
 
-function createBloodDripProjectile(%position, %size) {
+function createBloodDripProjectile(%position, %size, %paint) {
 	%obj = new Projectile() {
 		dataBlock = BloodDripProjectile;
 
 		initialPosition = %position;
 		initialVelocity = "0 0 -2";
+		isPaint = %paint;
 	};
 
 	MissionCleanup.add(%obj);
@@ -125,7 +126,7 @@ function Player::doSplatterBlood(%this, %pos, %amount) {
 	}
 }
 
-function ceilingBloodLoop(%this, %pos) {
+function ceilingBloodLoop(%this, %pos, %paint) {
 	cancel(%this.ceilingBloodSchedule);
 	if(!isObject(%this))
 	{
@@ -145,7 +146,7 @@ function ceilingBloodLoop(%this, %pos) {
 		return;
 	}
 
-	createBloodDripProjectile(%pos);
+	createBloodDripProjectile(%pos, "", %paint);
 	%this.ceilingBloodSchedule = schedule(%this.driptime, 0, ceilingBloodLoop, %this, %pos);
 }
 

@@ -189,8 +189,8 @@ function pickSuitcaseTool(%isLocked) {
 
 	if (%isLocked) {
 		%choices = "disguiseItem assaultRifleItem doubleShotgunItem medicineItem gamePistolItem sniperRifleItem fieldRifleItem";
-		%choices = %choices SPC "sniperRepeaterItem stealthPistolItem goldenGunItem LighterItem AmmoSupplyItem RecoveryDeviceItem";
-		%choices = %choices SPC "combatRifleItem";
+		%choices = %choices SPC "combatRifleItem stealthPistolItem goldenGunItem LighterItem AmmoSupplyItem RecoveryDeviceItem";
+		%choices = %choices SPC "singleShotgunItem";
 	}
 
 	%choice = getWord(%choices, getRandom(0, getWordCount(%choices) - 1));
