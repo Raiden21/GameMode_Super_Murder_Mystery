@@ -2,9 +2,13 @@ datablock staticShapeData(RopeShapeData) {
 	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/rope.dts";
 };
 
+datablock staticShapeData(HookShapeData) {
+	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/hook2.dts";
+};
+
 datablock ItemData(HookshotItem) {
 	image = HookshotImage;
-	shapeFile = $SMM::Path @ "res/shapes/hookshotImage1.dts";
+	shapeFile = $SMM::Path @ "res/shapes/hookImage1.dts";
 
 	uiName = "Hookshot";
 	canDrop = true;
@@ -17,7 +21,7 @@ datablock ItemData(HookshotItem) {
 };
 
 datablock ProjectileData(HookProjectile) {
-	projectileShapeName = $SMM::Path @ "res/shapes/hookshotImage1.dts";
+	projectileShapeName = $SMM::Path @ "res/shapes/hook2.dts";
 
 	directDamage = 0;
 	radiusDamage = 0;
@@ -29,18 +33,21 @@ datablock ProjectileData(HookProjectile) {
 	fadeDelay = 4000;
 
 	isBallistic = 1;
-	gravityMod = 0.35;
+	gravityMod = 1;
 
-	muzzleVelocity = 60;
+	muzzleVelocity = 20;
 	velInheritFactor = 1;
 };
 
 datablock ShapeBaseImageData(HookshotImage) {
+	className = "WeaponImage";
 	shapeFile = $SMM::Path @ "res/shapes/hookImage1.dts";
 
 	item = HookshotItem;
 	armReady = true;
-	projectile = HookshotProjectile;
+
+	projectile = HookProjectile;
+	projectileType = Projectile;
 
 	stateName[0] = "Ready";
 	stateAllowImageChange[0] = 1;
@@ -81,16 +88,20 @@ function HookshotImage::onFire(%this, %obj, %slot) {
 	}
 
 	%projectile = Parent::onFire(%this, %obj, %slot);
-	%projectile.dump();
 }
 
 function HookshotHoldingImage::onUse(%this, %obj, %slot) {
 	// foo
 }
 
-function HookshotProjectile::onCollision(%this, %obj, %col, %pos, %vel) {
-	Parent::onCollision(%this, %obj, %col, %pos, %vel);
-	echo(col);
+function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel) {
+	Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel);
+
+	if (!isObject(%obj.sourceObject)) {
+		return;
+	}
+
+	talk("Player" SPC %obj.sourceObject SPC "hit a hookshot at" SPC %pos SPC "with velocity" SPC %vel);
 }
 
 function createRope(%a, %b) {
@@ -108,12 +119,30 @@ function createRope(%a, %b) {
 
 		position = vectorScale(vectorAdd(%a, %b), 0.5);
 		rotation = %xyz SPC %pow;
-	};
 
-	echo(%obj.scale);
+		a = %a;
+		b = %b;
+	};
 
 	MissionCleanup.add(%obj);
 	%obj.setNodeColor("ALL", "0 0 0 1");
+
+	return %obj;
+}
+
+function createHook(%position, %vector) {
+	%obj = new StaticShape() {
+		datablock = HookShapeData;
+		scale = "0.5 0.5 0.5";
+
+		_position = %position;
+		_vector = %vector;
+	};
+
+	MissionCleanup.add(%obj);
+
+	%obj.setTransform(%position SPC vectorToAxis(%vector));
+	%obj.setNodeColor("ALL", "0.3 0.3 0.3 1");
 
 	return %obj;
 }
@@ -125,39 +154,18 @@ function findRopePoint(%pos, %vec) {
 		%vec = setWord(%vec, 2, 0);
 	}
 
-	%pointDownDist = 5;
-	%findWallDist = 5;
-	%findTopDist = 5;
-
-	%ray = containerRayCast(%pos,
-		vectorAdd(%pos, vectorScale(%vec, %findWallDist)),
-		$TypeMasks::FxBrickObjectType
-	);
-
-	if (%ray $= 0) {
-		return "";
-	}
-
-	%pos = vectorSub(getWords(%ray, 1, 3), vectorScale(%vec, 0.05));
-
-	%ray = containerRayCast(
-		vectorAdd(%pos, "0 0 0.1"),
-		vectorSub(%pos, "0 0" SPC 0.1 + %pointDownDist),
-		$TypeMasks::FxBrickObjectType
-	);
+	%ray = containerRayCast(%pos, vectorAdd(%pos, vectorScale(%vec, 10)), $TypeMasks::FxBrickObjectType);
 
 	if (%ray $= 0) {
 		return "";
 	}
 
 	%pos = getWords(%ray, 1, 3);
-
-	%diff = vectorScale(%vec, 0.2);
-	%test = vectorAdd(%pos, %diff);
+	%pos = vectorAdd(%pos, vectorScale(%vec, 0.5));
 
 	%ray = containerRayCast(
-		vectorAdd(%test, "0 0" SPC %findTopDist),
-		vectorSub(%test, "0 0 0.1"),
+		vectorAdd(%pos, "0 0 5"),
+		vectorSub(%pos, "0 0 0"),
 		$TypeMasks::FxBrickObjectType
 	);
 
@@ -165,38 +173,56 @@ function findRopePoint(%pos, %vec) {
 		return "";
 	}
 
-	%wall = getWords(%ray, 1, 3);
-
-	%wall = vectorSub(%wall, %diff);
-	%wall = vectorAdd(%wall, "0 0 0.05");
-
-	return %pos SPC %wall;
+	return getWords(%ray, 1, 3);
 }
 
 function player::test(%this,%pos) {
 	cancel(%this.test);
 
-	%a = findRopePoint(%pos, vectorSub(%this.position, %pos));
-	%b = findRopePoint(%this.position, vectorSub(%pos, %this.position));
+	%vec1 = vectorNormalize(vectorSub(%this.position, %pos));
+	%vec2 = vectorNormalize(vectorSub(%pos, %this.position));
+
+	%a = findRopePoint(%pos, %vec1);
+	%b = findRopePoint(%this.position, %vec2);
 
 	if (%a !$= "" && %b !$= "") {
-		%a1 = getWords(%a, 0, 2);
-		%a2 = getWords(%a, 3, 5);
+		%a = vectorAdd(%a, "0 0 0.05");
+		%b = vectorAdd(%b, "0 0 0.05");
 
-		%b1 = getWords(%b, 0, 2);
-		%b2 = getWords(%b, 3, 5);
+		if (isObject(%this.rope) && (%this.rope.a !$= %a || %this.rope.b !$= %b)) {
+			%this.rope.delete();
+		}
 
-		if(isobject(%this.r1))%this.r1.delete();
-		if(isobject(%this.r2))%this.r2.delete();
-		if(isobject(%this.r3))%this.r3.delete();
+		if (!isObject(%this.rope)) {
+			%this.rope = createRope(%a, %b);
+		}
 
-		
-		%this.r1=createRope(%a2, %b2);
-		%this.r2=createRope(%a1, %a2);
-		%this.r3=createRope(%b1, %b2);
+		if (isObject(%this.hook1)) {
+			if (%this.hook1._position !$= %a || %this.hook1._vector !$= %vec2) {
+				%this.hook1._position = %a;
+				%this.hook1._vector = %vec2;
+
+				%this.hook1.setTransform(%a SPC vectorToAxis(%vec2));
+			}
+		}
+		else {
+			%this.hook1 = createRope(%a, %vec2);
+		}
+
+		if (isObject(%this.hook2)) {
+			if (%this.hook2._position !$= %b || %this.hook2._vector !$= %vec1) {
+				%this.hook2._position = %b;
+				%this.hook2._vector = %vec1;
+
+				%this.hook2.setTransform(%b SPC vectorToAxis(%vec1));
+			}
+		}
+		else {
+			%this.hook2 = createRope(%b, %vec1);
+		}
 	}
 
-	%this.test=%this.schedule(200,test,%pos);
+	%this.test=%this.schedule(50,test,%pos);
 }
 
 function markPoint(%a,%t) {
@@ -204,4 +230,12 @@ function markPoint(%a,%t) {
 	%o = new projectile(){datablock=pongprojectile;initialposition=%a;initialvelocity="0 0 0";scale="1.25 1.25 1.25";};
 	missioncleanup.add(%o);
 	%o.schedule(%t $= "" ? 10000 : %t, delete);
+}
+
+function vectorToAxis(%vector) {
+    %y = mRadToDeg(mACos(getWord(%vector, 2) / vectorLen(%vector))) % 360;
+    %z = mRadToDeg(mATan(getWord(%vector, 1), getWord(%vector, 0)));
+
+    %euler = vectorScale(0 SPC %y SPC %z, $pi / 180);
+    return getWords(matrixCreateFromEuler(%euler), 3, 6);
 }
