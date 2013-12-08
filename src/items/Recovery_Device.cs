@@ -27,8 +27,9 @@ function RecoveryDeviceImage::onMount(%this, %obj, %slot) {
 	}
 }
 
-function RecoveryDisguiseImage::onUnMount(%this, %obj, %slot) {
+function RecoveryDeviceImage::onUnMount(%this, %obj, %slot) {
 	%obj.playThread(1, "root");
+
 	if (isObject(%obj.client)) {
 		clearCenterPrint(%obj.client);
 	}

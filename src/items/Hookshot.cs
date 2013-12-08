@@ -103,13 +103,12 @@ datablock ShapeBaseImageData(HookshotHoldingImage) {
 };
 
 function HookshotImage::onMount(%this, %obj, %slot) {
-	%obj.mountImage(HookshotLeftImage, %slot + 1);
+	%obj.mountImage(HookshotLeftImage, 1);
 }
 
 function HookshotImage::onUnMount(%this, %obj, %slot) {
-	echo(%obj.getMountedIamge(%slot + 1).getName());
-	if (%obj.getMountedIamge(%slot + 1) == nameToID("HookshotLeftImage")) {
-		%obj.unmountImage(%slot + 1);
+	if (%obj.getMountedImage(1) == nameToID("HookshotLeftImage")) {
+		%obj.unmountImage(1);
 	}
 }
 

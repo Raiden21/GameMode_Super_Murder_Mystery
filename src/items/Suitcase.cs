@@ -82,6 +82,7 @@ function SuitcaseImage::onUse(%this, %obj, %slot) {
 		%obj.client.centerPrint("\c6You opened the suitcase to find a(n) \c3" @ %tool.uiName @ "\c6.", 3);
 
 		serverCmdUseTool(%obj.client, %obj.currTool);
+		fixArmReady(%obj);
 	}
 }
 
