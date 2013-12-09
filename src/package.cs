@@ -40,6 +40,10 @@ package SMMPackage {
 			DecalGroupNew.deleteAll();
 		}
 
+		if (isObject(RopeGroup)) {
+			RopeGroup.deleteAll();
+		}
+
 		cancel(%this.resetSchedule);
 
 		if (isObject(%this.smmCore)) {
@@ -634,7 +638,7 @@ package SMMPackage {
 
 		%ray = containerRayCast(%eyePoint,
 			vectorAdd(%eyePoint, vectorScale(%eyeVector, 6)),
-			$TypeMasks::PlayerObjectType | $TypeMasks::FxBrickObjectType,
+			$TypeMasks::PlayerObjectType | $TypeMasks::FxBrickObjectType | $TypeMasks::ShapeBaseObjectType,
 			%this
 		);
 
@@ -643,6 +647,24 @@ package SMMPackage {
 		}
 
 		%col = getWord(%ray, 0);
+
+		if (%col.getType() & $TypeMasks::ShapeBaseObjectType) {
+			if (isObject(%col.rope)) {
+				%slots = %this.getDatablock().maxTools;
+				for (%i = 0; %i < %slots; %i++) {
+					if (!isObject(%this.tool[%i])) {
+						break;
+					}
+				}
+				if (%i == %slots) {
+					return;
+				}
+				serverPlay3d(hookOffSound, %col.position);
+				deleteRope(%col.rope);
+				%this.tool[%i] = nameToID("HookshotItem");
+				messageClient(%this.client, 'MsgItemPickup', "", %i, %this.tool[%i]);
+			}
+		}
 
 		if (!(%col.getType() & $TypeMasks::PlayerObjectType)) {
 			return;

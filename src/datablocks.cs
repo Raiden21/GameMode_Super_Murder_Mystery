@@ -268,37 +268,37 @@ datablock audioProfile(bodyBagUnzipSound) {
 
 
 datablock audioDescription(audioMusic2d : audioClose3D) {
-	volume = 1.25;
+	volume = 0.9;
 };
 datablock audioProfile(smmMafiaWinMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/mafiawins.wav";
+	fileName = $SMM::Path @ "res/sounds/music/mm-mafiawins.ogg";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmInnocentsWinMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/innocentswin.wav";
+	fileName = $SMM::Path @ "res/sounds/music/mm-innocentswin.ogg";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmRoundStartMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/roundstart.wav";
+	fileName = $SMM::Path @ "res/sounds/music/mm-roundstart.ogg";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmDeathMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/dead.wav";
+	fileName = $SMM::Path @ "res/sounds/music/mm-dead.ogg";
 	description = audioMusic2d;
 	preload = true;
 };
 datablock audioProfile(smmStalemateMusic) {
-	fileName = $SMM::Path @ "res/sounds/music/stalemate.wav";
+	fileName = $SMM::Path @ "res/sounds/music/mm-stalemate.ogg";
 	description = audioMusic2d;
 	preload = true;
 };
 
 datablock audioDescription(audioDistant3d : audioClose3D) {
-	maxDistance = 100;
-	referenceDistance = 80;
+	maxDistance = 200;
+	referenceDistance = 100;
 };
 datablock audioProfile(smmGunDistantSound1) {
 	fileName = $SMM::Path @ "res/sounds/ambient/gunDistant.wav";

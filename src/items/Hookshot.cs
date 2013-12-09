@@ -10,6 +10,42 @@ datablock staticShapeData(HookShapeData) {
 	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/hook.dts";
 };
 
+datablock staticShapeData(HookCollisionShapeData) {
+	shapeFile = "Add-Ons/GameMode_Super_Murder_Mystery/res/shapes/hookCol.dts";
+};
+
+datablock audioProfile(hookHitSound) {
+	fileName = $SMM::Path @ "res/sounds/physics/hookHit.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+datablock audioProfile(hookTossSound) {
+	fileName = $SMM::Path @ "res/sounds/physics/hookToss.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+datablock audioProfile(hookOffSound) {
+	fileName = $SMM::Path @ "res/sounds/physics/hookOff.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+
+datablock audioProfile(ropeSound1) {
+	fileName = $SMM::Path @ "res/sounds/physics/ropeSound1.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+datablock audioProfile(ropeSound2) {
+	fileName = $SMM::Path @ "res/sounds/physics/ropeSound2.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+datablock audioProfile(ropeSound3) {
+	fileName = $SMM::Path @ "res/sounds/physics/ropeSound3.wav";
+	description = AudioClosest3D;
+	preload = true;
+};
+
 datablock ItemData(HookshotItem) {
 	image = HookshotImage;
 	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
@@ -28,7 +64,7 @@ datablock ItemData(HookshotItem) {
 };
 
 datablock ProjectileData(HookProjectile) {
-	projectileShapeName = $SMM::Path @ "res/shapes/hook_proj.dts";
+	projectileShapeName = $SMM::Path @ "res/shapes/hookProj.dts";
 
 	directDamage = 0;
 	radiusDamage = 0;
@@ -51,7 +87,7 @@ datablock ShapeBaseImageData(HookshotImage) {
 	shapeFile = $SMM::Path @ "res/shapes/hook.dts";
 
 	item = HookshotItem;
-	armReady = false;
+	armReady = true;
 
 	projectile = HookProjectile;
 	projectileType = Projectile;
@@ -59,17 +95,23 @@ datablock ShapeBaseImageData(HookshotImage) {
 	doColorShift = HookshotItem.doColorShift;
 	colorShiftColor = HookshotItem.colorShiftColor;
 
-	stateName[0] = "Ready";
-	stateAllowImageChange[0] = 1;
-	stateTransitionOnTriggerDown[0] = "Fire";
+	stateName[0] = "Activate";
+	stateTimeoutValue[0] = 0.1;
+	stateSound[0] = weaponSwitchSound;
+	stateTransitionOnTimeout[0] = "Ready";
 
-	stateName[1] = "Fire";
-	stateScript[1] = "onFire";
+	stateName[1] = "Ready";
 	stateAllowImageChange[1] = 1;
-	stateTransitionOnTriggerUp[1] = "Fired";
+	stateTransitionOnTriggerDown[1] = "Fire";
 
-	stateName[2] = "Fired";
+	stateName[2] = "Fire";
+	stateScript[2] = "onFire";
 	stateAllowImageChange[2] = 1;
+	stateTransitionOnTriggerUp[2] = "Fired";
+
+	stateName[3] = "Fired";
+	stateAllowImageChange[3] = 0;
+	stateTransitionOnAmmo[3] = "Ready";
 };
 
 datablock ShapeBaseImageData(HookshotLeftImage) {
@@ -96,14 +138,33 @@ package HookshotPackage {
 				%obj.client.centerPrint("\c3Rope placed.", 1);
 			}
 
+			serverPlay3d(ropeSound @ getRandom(1, 3), %obj.tempRope.a);
+			serverPlay3d(ropeSound @ getRandom(1, 3), %obj.tempRope.b);
 			%obj.rope = createRope(%obj.tempRope.a, %obj.tempRope.b, 1);
-
 			cancel(%obj.tempRopeLoop);
 			deleteRope(%obj.tempRope);
+			%obj.playThread(2, spearThrow);
+			%obj.playThread(1, root);
+			if (%obj.getMountedImage(0) == nameToId("HookshotImage")) {
+				%obj.unmountImage(0);
+			}
+			for (%i = 0; %i < %obj.getDataBlock().maxTools; %i++) {
+				if( %obj.tool[%i] == nameToID("hookshotItem")) {
+					%obj.tool[%i] = 0;
+					%obj.weaponCount--;
+					messageClient(%obj.client, 'MsgItemPickup', '', %i, 0);
+					break;
+				}
+			}
 		}
 
 		if (%slot == 4 && %state) {
 			cancel(%obj.tempRopeLoop);
+			%obj.mountImage(HookshotLeftImage, 1);
+			if (%obj.getMountedImage(0) == nameToId("HookshotImage")) {
+				%obj.setImageAmmo(0, 1);
+				// %obj.unmountImage(0);
+			}
 
 			if (isObject(%obj.tempRope)) {
 				deleteRope(%obj.tempRope);
@@ -126,12 +187,15 @@ function HookshotImage::onUnMount(%this, %obj, %slot) {
 
 function HookshotImage::onFire(%this, %obj, %slot) {
 	Parent::onFire(%this, %obj, %slot);
-	%obj.unmountImage(%slot);
+	%obj.playThread(2, leftRecoil);
+	serverPlay3d(hookTossSound, %obj.getMuzzlePoint(0));
+	%obj.unmountImage(1);
+	%obj.setImageAmmo(%slot, 0);
 }
 
 function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel) {
 	Parent::onCollision(%this, %obj, %col, %fade, %pos, %normal, %vel);
-
+	serverPlay3d(hookHitSound, %pos);
 	if (isObject(%obj.sourceObject)) {
 		%obj.sourceObject.tempRopeLoop(%pos);
 	}
@@ -140,7 +204,7 @@ function HookProjectile::onCollision(%this, %obj, %col, %fade, %pos, %normal, %v
 function Player::tempRopeLoop(%this, %point) {
 	cancel(%this.tempRopeLoop);
 
-	if (%this.getState() $= "Dead") {
+	if (%this.getState() $= "Dead" || %this.getMountedImage(0) != nameToID("hookshotImage")) {
 		if (isObject(%this.tempRope)) {
 			deleteRope(%this.tempRope);
 		}
@@ -208,27 +272,36 @@ function createRope(%a, %b, %collision) {
 		a = %a;
 		b = %b;
 
-		hook1 = createHook(%a, %vec1);
-		hook2 = createHook(%b, %vec2);
+		hook1 = createHook(%a, %vec1, %collision);
+		hook2 = createHook(%b, %vec2, %collision);
 	};
-
+	%obj.hook1.rope = %obj;
+	%obj.hook2.rope = %obj;
+	if (!isObject(RopeGroup)) {
+		MissionCleanup.add(new SimGroup(RopeGroup));
+	}
 	MissionCleanup.add(%obj);
-	%obj.setNodeColor("ALL", "0.454902 0.313726 0.109804 1.000000");
+	RopeGroup.add(%obj);
+	%obj.setNodeColor("ALL", "0.454902 0.313726 0.109804 1.0" ); // SPC %collision ? 1 : 0.9);
 
 	return %obj;
 }
 
-function createHook(%position, %vector) {
+function createHook(%position, %vector, %collision) {
 	%vector = setWord(%vector, 2, 0);
 
 	%obj = new StaticShape() {
-		datablock = HookShapeData;
+		datablock = %collision ? hookCollisionShapeData : HookShapeData;
 	};
 
+	if (!isObject(RopeGroup)) {
+		MissionCleanup.add(new SimGroup(RopeGroup));
+	}
+	RopeGroup.add(%obj);
 	MissionCleanup.add(%obj);
 
 	%obj.setTransform(%position SPC vectorToAxis(%vector));
-	%obj.setNodeColor("ALL", HookshotItem.colorShiftColor);
+	%obj.setNodeColor("ALL", getWords(HookshotItem.colorShiftColor, 0, 3) SPC 1);//SPC %collision ? 1 : 0.9);
 
 	return %obj;
 }
@@ -259,9 +332,9 @@ function calculateHookLatch(%pos, %src) {
 }
 
 function vectorToAxis(%vector) {
-    %y = mRadToDeg(mACos(getWord(%vector, 2) / vectorLen(%vector))) % 360;
-    %z = mRadToDeg(mATan(getWord(%vector, 1), getWord(%vector, 0)));
+	%y = mRadToDeg(mACos(getWord(%vector, 2) / vectorLen(%vector))) % 360;
+	%z = mRadToDeg(mATan(getWord(%vector, 1), getWord(%vector, 0)));
 
-    %euler = vectorScale(0 SPC %y SPC %z, $pi / 180);
-    return getWords(matrixCreateFromEuler(%euler), 3, 6);
+	%euler = vectorScale(0 SPC %y SPC %z, $pi / 180);
+	return getWords(matrixCreateFromEuler(%euler), 3, 6);
 }
