@@ -152,14 +152,13 @@ function SMMCore::placeRandomItems(%this) {
 		%bricks = trim(strReplace(setWord(%bricks, %index, ""), "  ", " "));
 
 		if (isObject(%brick)) {
-			//if (getRandom() >= 0.33) {
-			if (1) {
+			if (getRandom() >= 0.33) {
 				%brick.setItem(getRandom() < 0.25 ? LockedSuitcaseItem : SuitcaseItem);
 			}
 			else {
-				%choices = "suitcaseKeyItem papersItem paintItem AutomaticPistolItem";
+				%choices = "suitcaseKeyItem papersItem paintItem LighterItem";
 				%choices = %choices SPC "MeleeCaneItem MeleeKnifeItem MeleeUmbrellaItem MeleeWrenchItem MeleePanItem";
-				%choices = %choices SPC "bodybagItem taserItem MedicineItem LighterItem AmmoSupplyItem flashlightItem";
+				%choices = %choices SPC "bodybagItem taserItem MedicineItem AmmoSupplyItem flashlightItem";
 				%choice = getWord(%choices, getRandom(0, getWordCount(%choices) - 1));
 				%choice = isObject(%choice) ? %choice : SuitcaseItem;
 				%brick.setItem(%choice);
