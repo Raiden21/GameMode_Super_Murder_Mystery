@@ -531,7 +531,7 @@ package SMMPackage {
 			%mount.playThread(3, "ArmReadyBoth");
 
 			%obj.playThread(3, "death1");
-			%obj.setTransform("0 0 0 0 0 -1 -1.5709");
+			%obj.setTransform("0 0 -100 0 0 -1 -1.5709");
 		}
 	}
 
@@ -551,19 +551,6 @@ package SMMPackage {
 			%obj.delete();
 		}
 
-		if (isObject(%mount)) {
-			%mount.playThread(3, "root");
-
-			%transform = %mount.getTransform();
-			%hackPosition = %mount.getHackPosition();
-			%forwardVector = %mount.getForwardVector();
-		}
-		else {
-			%transform = %obj.getTransform();
-			%hackPosition = %obj.getHackPosition();
-			%forwardVector = "0 0 0";
-		}
-
 		%vehicle = %obj.corpseVehicle;
 
 		if (!isObject(%vehicle)) {
@@ -572,20 +559,25 @@ package SMMPackage {
 
 		%vehicle.mountObject(%obj, 0);
 
-		%position = vectorAdd(%hackPosition, vectorScale(%forwardVector, 2));
-		%velocity = vectorScale(%forwardVector, 10);
+		if (isObject(%mount)) {
+			%hackPosition = %mount.getHackPosition();
+			%forwardVector = %mount.getForwardVector();
 
-		%ray = containerRayCast(%hackPosition, %position, $TypeMasks::FxBrickObjectType);
+			%position = vectorAdd(%hackPosition, vectorScale(%forwardVector, 2));
+			%velocity = vectorScale(%forwardVector, 10);
+	
+			%ray = containerRayCast(%hackPosition, %position, $TypeMasks::FxBrickObjectType);
+	
+			if (%ray !$= 0) {
+				%position = %hackPosition;
+				%velocity = "0 0 0";
+			}
+	
+			%vehicle.setTransform(%position SPC getWords(%mount.getTransform(), 3, 6));
 
-		if (%ray !$= 0) {
-			%position = %hackPosition;
-			%velocity = "0 0 0";
+			%vehicle.setVelocity(%velocity);
+			%vehicle.setAngularVelocity(vectorNormalize(%velocity));
 		}
-
-		%vehicle.setTransform(%position SPC getWords(%transform, 3, 6));
-		%vehicle.setVelocity(%velocity);
-
-		%vehicle.setAngularVelocity(vectorNormalize(%velocity));
 	}
 
 	function WheeledVehicleData::onDriverLeave(%this, %vehicle, %driver) {
